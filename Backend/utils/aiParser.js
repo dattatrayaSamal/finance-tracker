@@ -1,33 +1,42 @@
-const axios = require("axios");
+const API_KEY = process.env.GEMINI_API_KEY;
+const GEMINI_API_URL =
+  "https://generativelanguage.googleapis.com/v1beta2/models/chat-bison-001:generateMessage";
 
-const parseTransactionsWithAI = async (fileContent) => {
-  const prompt = `
-    Extract date, amount, description, and categorize the transaction from this statement:
-    ${fileContent}
-  `;
-
+async function callGeminiAPI(prompt) {
   try {
-    const response = await axios.post(
-      "https://api.openai.com/v1/completions",
-      {
-        model: "text-davinci-003",
-        prompt: prompt,
-        max_tokens: 500,
-        temperature: 0.5,
+    const response = await fetch(GEMINI_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${API_KEY}`,
       },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-          "Content-Type": "application/json",
+      body: JSON.stringify({
+        prompt: {
+          messages: [{ content: prompt, role: "USER" }],
         },
-      }
-    );
+        temperature: 0.7,
+      }),
+    });
 
-    return response.data.choices[0].text.trim();
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`API error ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    return data.candidates[0].message.content;
   } catch (error) {
-    console.error("Error parsing with AI:", error);
+    console.error("Error calling Gemini API:", error);
     throw error;
   }
-};
+}
 
-module.exports = parseTransactionsWithAI;
+(async () => {
+  const prompt = "Hello, Gemini! What's the weather today?";
+  try {
+    const reply = await callGeminiAPI(prompt);
+    console.log("Gemini reply:", reply);
+  } catch (error) {
+    console.error("Request failed:", error);
+  }
+})();
