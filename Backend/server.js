@@ -4,10 +4,11 @@ const multer = require("multer");
 const transactionRoutes = require("./routes/transactionRoutes");
 const path = require("path");
 const dotenv = require("dotenv");
-
 dotenv.config();
+const cors = require("cors");
 
 const app = express();
+app.use(cors());
 
 // MongoDB connection
 mongoose

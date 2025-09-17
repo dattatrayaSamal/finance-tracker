@@ -1,0 +1,247 @@
+1. What is Backend Development?
+Answer:
+Backend development refers to server-side programming that handles databases, business logic,
+authentication, and API integration. It ensures data is processed correctly and sent to the frontend. Key components include:
+
+Server (Handles requests and responses)
+
+Database (Stores and retrieves data)
+
+APIs (Facilitate communication between frontend and backend)
+
+2. What is the difference between SQL and NoSQL databases?
+Feature	SQL (Relational DB)	NoSQL (Non-relational DB)
+Structure	Uses tables with fixed schemas	Uses flexible schema (JSON, key-value, graph, etc.)
+Scalability	Vertically scalable	Horizontally scalable
+Query Language	Uses SQL (Structured Query Language)	Uses different query methods (JSON, key-value, etc.)
+Example DBs	MySQL, PostgreSQL, Oracle	MongoDB, Redis, Cassandra
+
+3. What is RESTful API?
+Answer:
+A RESTful API (Representational State Transfer API) follows REST principles to allow communication between systems. It uses:
+
+HTTP Methods: GET, POST, PUT, DELETE
+
+Statelessness: Each request is independent
+
+JSON/XML: Common data formats
+
+Example REST API endpoint:
+
+bash
+Copy
+Edit
+GET /users/{id}
+This retrieves user details using the user ID.
+
+4. What is the difference between REST and SOAP?
+Feature	REST	SOAP
+Protocol	Uses HTTP	Uses HTTP, SMTP, TCP
+Data Format	JSON, XML	XML only
+Performance	Faster and lightweight	Slower due to heavy XML parsing
+Stateless	Yes	No (maintains session state)
+REST is widely used in modern applications due to its simplicity and flexibility.
+
+5. What is Middleware in Express.js?
+Answer:
+Middleware functions in Express.js are functions that execute during the request-response cycle. They can:
+
+Modify the request (req) or response (res) objects
+
+Execute any code before passing control to the next function
+
+Example:
+
+javascript
+Copy
+Edit
+const logger = (req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next(); // Move to the next middleware
+};
+
+app.use(logger);
+Here, logger logs each incoming request.
+
+6. What is JWT (JSON Web Token)?
+Answer:
+JWT is a secure way to handle authentication. It consists of:
+
+Header (Contains metadata)
+
+Payload (User data)
+
+Signature (Ensures integrity)
+
+Example JWT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsIm5hbWUiOiJKb2huIERvZSJ9.G0f6q
+
+Usage:
+
+Clients send JWT in the Authorization header.
+
+The backend verifies the token before granting access.
+
+7. How does Authentication differ from Authorization?
+Concept	Authentication	Authorization
+Definition	Verifies identity	Determines access rights
+Example	Login with username & password	Checking if a user can access an admin panel
+Implemented by	JWT, OAuth, Sessions	Role-based access control
+
+8. What is the purpose of the package.json file in Node.js?
+Answer:
+The package.json file:
+
+Manages dependencies (dependencies, devDependencies)
+
+Defines project metadata (name, version)
+
+Specifies scripts (e.g., npm start)
+
+Example:
+
+json
+Copy
+Edit
+{
+  "name": "myapp",
+  "version": "1.0.0",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
+
+9. What is CORS and why is it important?
+Answer:
+CORS (Cross-Origin Resource Sharing) controls access to resources from different origins.
+
+By default, browsers block cross-origin requests. CORS allows whitelisting domains for security.
+
+Example in Express.js:
+
+javascript
+Copy
+Edit
+const cors = require('cors');
+app.use(cors({ origin: "https://example.com" }));
+
+10. What is an ORM, and can you name a few?
+Answer:
+An ORM (Object-Relational Mapping) allows interaction with databases using code instead of SQL queries.
+
+Popular ORMs:
+
+Sequelize (for Node.js & SQL databases)
+
+Mongoose (for MongoDB)
+
+Example using Mongoose:
+
+javascript
+Copy
+Edit
+const mongoose = require('mongoose');
+const userSchema = new mongoose.Schema({ name: String, age: Number });
+const User = mongoose.model('User', userSchema);
+
+11. What are WebSockets?
+Answer:
+WebSockets enable real-time, bidirectional communication between the client and server.
+
+Example in Node.js with ws:
+
+javascript
+Copy
+Edit
+const WebSocket = require('ws');
+const wss = new WebSocket.Server({ port: 8080 });
+
+wss.on('connection', ws => {
+  ws.send("Hello, Client!");
+});
+Use Cases:
+
+Chat applications
+
+Live notifications
+
+Real-time collaboration tools
+
+12. What is the difference between process.nextTick() and setImmediate()?
+Function	Execution Time
+process.nextTick()	Executes immediately after the current operation
+setImmediate()	Executes after I/O operations in the next event loop cycle
+Example:
+
+javascript
+Copy
+Edit
+console.log("Start");
+
+setImmediate(() => console.log("Immediate"));
+process.nextTick(() => console.log("Next Tick"));
+
+console.log("End");
+Output:
+
+pgsql
+Copy
+Edit
+Start
+End
+Next Tick
+Immediate
+process.nextTick() runs before setImmediate().
+
+13. How does Load Balancing work in backend systems?
+Answer:
+Load Balancing distributes incoming traffic across multiple servers to:
+
+Prevent server overload
+
+Improve performance & reliability
+
+Ensure high availability
+
+Common Load Balancers:
+
+Nginx
+
+AWS ELB
+
+HAProxy
+
+Example:
+
+arduino
+Copy
+Edit
+Client Request → Load Balancer → Server 1 / Server 2 / Server 3
+
+14. What are the different types of HTTP status codes?
+Category	Meaning	Example
+1xx	Informational	100 Continue
+2xx	Success	200 OK, 201 Created
+3xx	Redirection	301 Moved Permanently, 302 Found
+4xx	Client Errors	400 Bad Request, 404 Not Found
+5xx	Server Errors	500 Internal Server Error, 503 Service Unavailable
+
+15. What is Rate Limiting in APIs?
+Answer:
+Rate limiting restricts the number of requests a client can make within a time period to prevent abuse.
+
+Example in Express.js:
+
+javascript
+Copy
+Edit
+const rateLimit = require("express-rate-limit");
+
+const limiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 5, // Limit each IP to 5 requests per minute
+});
+
+app.use(limiter);
