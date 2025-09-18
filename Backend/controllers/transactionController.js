@@ -5,7 +5,6 @@ const pdfParse = require("pdf-parse");
 const Transaction = require("../models/Transaction");
 const parseTransactionsWithAI = require("../utils/aiParser");
 
-// Set up multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "./uploads/");
@@ -60,7 +59,6 @@ const handleFileUpload = async (req, res) => {
 
     console.log("AI parsed data:", parsedData);
 
-    // Save each transaction to MongoDB
     for (let transaction of parsedData) {
       const newTransaction = new Transaction(transaction);
       await newTransaction.save();
@@ -79,7 +77,6 @@ const handleFileUpload = async (req, res) => {
   }
 };
 
-// GET all transactions
 const getAllTransactions = async (req, res) => {
   try {
     const transactions = await Transaction.find().sort({ date: -1 });
@@ -95,16 +92,14 @@ const updateTransaction = async (req, res) => {
     const { id } = req.params;
     const { date, amount, description, category, type, merchant } = req.body;
 
-    // Validate required fields
     if (!date || !amount || !description || !category || !type || !merchant) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    // Find and update the transaction
     const updatedTransaction = await Transaction.findByIdAndUpdate(
       id,
       { date, amount, description, category, type, merchant },
-      { new: true } // Return the updated document
+      { new: true }
     );
 
     if (!updatedTransaction) {
@@ -122,12 +117,10 @@ const updateTransaction = async (req, res) => {
   }
 };
 
-// DELETE a transaction
 const deleteTransaction = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Find and delete the transaction
     const deletedTransaction = await Transaction.findByIdAndDelete(id);
 
     if (!deletedTransaction) {
