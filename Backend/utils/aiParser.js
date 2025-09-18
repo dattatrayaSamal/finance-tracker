@@ -1,8 +1,8 @@
 const { GoogleAuth } = require("google-auth-library");
 const serviceAccount = require("../config/google-service-account.json");
 
-// const GEMINI_API_URL =
-//   "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent";
+const GEMINI_API_URL =
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent";
 
 const auth = new GoogleAuth({
   credentials: serviceAccount,
