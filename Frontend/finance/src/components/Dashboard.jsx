@@ -1,45 +1,54 @@
 import React, { useEffect, useState } from "react";
-import api from "../api/api";
+import FileUpload from "../components/FileUpload";
+import TransactionTable from "../components/TransactionTable";
+import SummaryCards from "../components/SummaryCards";
+import API from "../api";
 
 const Dashboard = () => {
   const [transactions, setTransactions] = useState([]);
 
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      const res = await api.get("/transactions");
-      console.log(res);
+  const fetchTransactions = async () => {
+    try {
+      const res = await API.get("/transactions");
       setTransactions(res.data);
-    };
+    } catch (err) {
+      console.error("Error fetching transactions", err);
+    }
+  };
+
+  useEffect(() => {
     fetchTransactions();
   }, []);
 
+  const handleUploadComplete = (newData) => {
+    setTransactions((prev) => [...prev, ...newData]);
+  };
+
+  const handleDelete = (id) => {
+    setTransactions((prev) => prev.filter((t) => t._id !== id));
+  };
+
+  const handleUpdate = (updatedTransaction) => {
+    setTransactions((prev) =>
+      prev.map((t) =>
+        t._id === updatedTransaction._id ? updatedTransaction : t
+      )
+    );
+  };
+
   return (
-    <div style={{ padding: "2rem" }}>
-      <h2>Transaction Dashboard</h2>
-      <table border="1" cellPadding="10">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Amount</th>
-            <th>Description</th>
-            <th>Category</th>
-            <th>Type</th>
-            <th>Merchant</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.map((txn) => (
-            <tr key={txn._id}>
-              <td>{txn.date}</td>
-              <td>{txn.amount}</td>
-              <td>{txn.description}</td>
-              <td>{txn.category}</td>
-              <td>{txn.type}</td>
-              <td>{txn.merchant}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="max-w-7xl mx-auto px-4 py-10">
+      <h1 className="text-4xl font-bold text-center text-blue-800 mb-8">
+        Finance Tracker
+      </h1>
+
+      <FileUpload onUploadComplete={handleUploadComplete} />
+      <SummaryCards transactions={transactions} />
+      <TransactionTable
+        transactions={transactions}
+        onDelete={handleDelete}
+        onUpdate={handleUpdate}
+      />
     </div>
   );
 };

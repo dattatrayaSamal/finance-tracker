@@ -1,20 +1,36 @@
-const API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta2/models/chat-bison-001:generateMessage";
+const { GoogleAuth } = require("google-auth-library");
+const serviceAccount = require("../config/google-service-account.json");
 
-async function callGeminiAPI(prompt) {
+const GEMINI_API_URL =
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent";
+
+const auth = new GoogleAuth({
+  credentials: serviceAccount,
+  scopes: ["https://www.googleapis.com/auth/generative-language"],
+});
+
+async function getAccessToken() {
+  const client = await auth.getClient();
+  const accessTokenResponse = await client.getAccessToken();
+  return accessTokenResponse.token;
+}
+
+async function testGeminiAPI() {
   try {
+    const accessToken = await getAccessToken();
+
     const response = await fetch(GEMINI_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${API_KEY}`,
+        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({
-        prompt: {
-          messages: [{ content: prompt, role: "USER" }],
-        },
-        temperature: 0.7,
+        contents: [
+          {
+            parts: [{ text: "Say hello!" }],
+          },
+        ],
       }),
     });
 
@@ -24,19 +40,10 @@ async function callGeminiAPI(prompt) {
     }
 
     const data = await response.json();
-    return data.candidates[0].message.content;
+    console.log("API Response:", data);
   } catch (error) {
     console.error("Error calling Gemini API:", error);
-    throw error;
   }
 }
 
-(async () => {
-  const prompt = "Hello, Gemini! What's the weather today?";
-  try {
-    const reply = await callGeminiAPI(prompt);
-    console.log("Gemini reply:", reply);
-  } catch (error) {
-    console.error("Request failed:", error);
-  }
-})();
+testGeminiAPI();

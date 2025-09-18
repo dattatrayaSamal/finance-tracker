@@ -54,18 +54,17 @@ const handleFileUpload = async (req, res) => {
       return res.status(400).json({ message: "Unsupported file format" });
     }
 
+    console.log("File content extracted:", fileContent.slice(0, 500));
+
     const parsedData = await parseTransactionsWithAI(fileContent);
 
-    const newTransaction = new Transaction({
-      date: "2023-10-01",
-      amount: 100.0,
-      description: "Test Transaction",
-      category: "Food",
-      type: "expense",
-      merchant: "Supermarket",
-    });
+    console.log("AI parsed data:", parsedData);
 
-    await newTransaction.save();
+    // Save each transaction to MongoDB
+    for (let transaction of parsedData) {
+      const newTransaction = new Transaction(transaction);
+      await newTransaction.save();
+    }
 
     res.status(200).json({
       message: "File uploaded and parsed successfully",
@@ -91,8 +90,63 @@ const getAllTransactions = async (req, res) => {
   }
 };
 
+const updateTransaction = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { date, amount, description, category, type, merchant } = req.body;
+
+    // Validate required fields
+    if (!date || !amount || !description || !category || !type || !merchant) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // Find and update the transaction
+    const updatedTransaction = await Transaction.findByIdAndUpdate(
+      id,
+      { date, amount, description, category, type, merchant },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedTransaction) {
+      return res.status(404).json({ message: "Transaction not found" });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Transaction updated", updatedTransaction });
+  } catch (err) {
+    console.error("Error updating transaction:", err);
+    res
+      .status(500)
+      .json({ message: "Failed to update transaction", error: err.message });
+  }
+};
+
+// DELETE a transaction
+const deleteTransaction = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find and delete the transaction
+    const deletedTransaction = await Transaction.findByIdAndDelete(id);
+
+    if (!deletedTransaction) {
+      return res.status(404).json({ message: "Transaction not found" });
+    }
+
+    res.status(200).json({ message: "Transaction deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting transaction:", err);
+    res
+      .status(500)
+      .json({ message: "Failed to delete transaction", error: err.message });
+  }
+};
+
 module.exports = {
   upload,
   handleFileUpload,
   getAllTransactions,
+  updateTransaction,
+  deleteTransaction,
 };
